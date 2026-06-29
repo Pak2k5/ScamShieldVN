@@ -1,0 +1,124 @@
+# ScamShield VN - Source Registry
+# Defines all data sources with metadata for provenance, access policies, and redistribution rights.
+# Each entry is validated against the SourceEntry Pydantic model on load.
+
+sources:
+  - source_id: "phishtank_verified"
+    source_name: "PhishTank Verified Phishing"
+    source_url: "https://phishtank.org"
+    source_type: "threat_feed"
+    credibility_level: "high"
+    license_note: "Free for non-commercial research use; attribution required"
+    access_method: "api_key_required"
+    redistribution_status: "allowed"
+    rate_limit_rps: 1.0
+    requires_api_key: true
+    enabled: true
+
+  - source_id: "openphish_feed"
+    source_name: "OpenPhish Community Feed"
+    source_url: "https://openphish.com"
+    source_type: "threat_feed"
+    credibility_level: "high"
+    license_note: "Community feed publicly available; commercial use terms unclear"
+    access_method: "public_csv"
+    redistribution_status: "unknown"
+    rate_limit_rps: 0.5
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "urlhaus_malware"
+    source_name: "URLhaus Malware URL Exchange"
+    source_url: "https://urlhaus.abuse.ch"
+    source_type: "threat_feed"
+    credibility_level: "high"
+    license_note: "CC0 1.0 Universal - Public Domain Dedication"
+    access_method: "public_api"
+    redistribution_status: "allowed"
+    rate_limit_rps: 1.0
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "google_safe_browsing"
+    source_name: "Google Safe Browsing"
+    source_url: "https://safebrowsing.google.com"
+    source_type: "threat_feed"
+    credibility_level: "official"
+    license_note: "Google API Terms of Service; data may not be redistributed"
+    access_method: "api_key_required"
+    redistribution_status: "prohibited"
+    rate_limit_rps: 1.0
+    requires_api_key: true
+    enabled: true
+
+  - source_id: "virustotal"
+    source_name: "VirusTotal"
+    source_url: "https://www.virustotal.com"
+    source_type: "threat_feed"
+    credibility_level: "high"
+    license_note: "VirusTotal API Terms; redistribution of raw results prohibited"
+    access_method: "api_key_required"
+    redistribution_status: "prohibited"
+    rate_limit_rps: 0.25
+    requires_api_key: true
+    enabled: true
+
+  - source_id: "vietnamese_official"
+    source_name: "Vietnamese Official Cybersecurity Sources"
+    source_url: "https://khonggianmang.vn"
+    source_type: "official_government"
+    credibility_level: "official"
+    license_note: "Government public information; redistribution terms not explicitly stated"
+    access_method: "public_webpage"
+    redistribution_status: "unknown"
+    rate_limit_rps: 0.5
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "tin_nhiem_mang"
+    source_name: "Tín Nhiệm Mạng - Trung tâm Giám sát an toàn không gian mạng quốc gia"
+    source_url: "https://tinnhiemmang.vn"
+    source_type: "official_government"
+    credibility_level: "official"
+    license_note: "Government public service; redistribution terms not explicitly stated"
+    access_method: "public_webpage"
+    redistribution_status: "unknown"
+    rate_limit_rps: 0.5
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "tranco_top1000"
+    source_name: "Tranco Top 1 Million - Top 1000 Subset"
+    source_url: "https://tranco-list.eu"
+    source_type: "benign_reference"
+    credibility_level: "high"
+    license_note: "Publicly available ranking list; free to use for research"
+    access_method: "public_csv"
+    redistribution_status: "allowed"
+    rate_limit_rps: 1.0
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "benign_domains_vn"
+    source_name: "Curated Vietnamese Benign Domains"
+    source_url: "https://github.com/ScamShieldVN/benign-domains"
+    source_type: "benign_reference"
+    credibility_level: "official"
+    license_note: "Manually curated list of verified legitimate Vietnamese domains"
+    access_method: "manual_curated"
+    redistribution_status: "allowed"
+    rate_limit_rps: 1.0
+    requires_api_key: false
+    enabled: true
+
+  - source_id: "benign_messages"
+    source_name: "Curated Benign Vietnamese Messages"
+    source_url: "https://github.com/ScamShieldVN/benign-messages"
+    source_type: "benign_reference"
+    credibility_level: "medium"
+    license_note: "Manually curated and synthetic benign messages for negative examples"
+    access_method: "manual_curated"
+    redistribution_status: "allowed"
+    rate_limit_rps: 1.0
+    requires_api_key: false
+    enabled: true

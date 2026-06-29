@@ -1,0 +1,22 @@
+# ScamShield VN - Pipeline Configuration
+# Default settings for the data pipeline. Values here are used when not overridden by CLI flags.
+
+# Output directory for all data tiers (private_raw, processed_private, public_kaggle)
+output_dir: ./data
+
+# Default rate limit (requests per second per domain)
+rate_limit_rps: 1.0
+
+# Retry configuration for HTTP requests
+max_retries: 3
+backoff_base: 2
+backoff_max: 30
+
+# HTTP request timeout in seconds
+timeout: 30
+
+# Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+log_level: INFO
+
+# Dataset versioning (semver format)
+dataset_version: "0.1.0"

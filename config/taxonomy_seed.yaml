@@ -1,0 +1,193 @@
+# ScamShield VN - Vietnamese Scam Type Taxonomy
+# 18 categories sourced from official Vietnamese cybersecurity authorities.
+# Each scam type is classified under a parent group for hierarchical analysis.
+
+taxonomy:
+  - id: 1
+    scam_type: "impersonation_government"
+    scam_type_vi: "Giả mạo cơ quan nhà nước"
+    parent_group: "impersonation"
+    description_vi: "Giả danh công an, viện kiểm sát, tòa án, cơ quan thuế để đe dọa hoặc lừa chuyển tiền"
+    typical_channels:
+      - phone_call
+      - sms
+      - zalo
+
+  - id: 2
+    scam_type: "impersonation_bank"
+    scam_type_vi: "Giả mạo ngân hàng"
+    parent_group: "impersonation"
+    description_vi: "Giả danh nhân viên ngân hàng, gửi tin nhắn/email giả mạo để lấy thông tin tài khoản"
+    typical_channels:
+      - sms
+      - email
+      - phone_call
+      - fake_website
+
+  - id: 3
+    scam_type: "impersonation_logistics"
+    scam_type_vi: "Giả mạo đơn vị vận chuyển"
+    parent_group: "impersonation"
+    description_vi: "Giả danh shipper, bưu điện, đơn vị giao hàng để lừa thanh toán COD hoặc phí vận chuyển"
+    typical_channels:
+      - sms
+      - phone_call
+      - zalo
+
+  - id: 4
+    scam_type: "impersonation_ecommerce"
+    scam_type_vi: "Giả mạo sàn thương mại điện tử"
+    parent_group: "impersonation"
+    description_vi: "Giả mạo Shopee, Lazada, Tiki để lừa đảo hoàn tiền, khuyến mãi giả, link thanh toán giả"
+    typical_channels:
+      - sms
+      - email
+      - fake_website
+      - social_media
+
+  - id: 5
+    scam_type: "fake_reward_gift"
+    scam_type_vi: "Trúng thưởng/quà tặng giả"
+    parent_group: "financial_fraud"
+    description_vi: "Thông báo trúng thưởng giả, yêu cầu nộp phí để nhận quà hoặc cung cấp thông tin cá nhân"
+    typical_channels:
+      - sms
+      - email
+      - social_media
+      - fake_website
+
+  - id: 6
+    scam_type: "fake_job_task"
+    scam_type_vi: "Việc làm giả/nhiệm vụ online"
+    parent_group: "financial_fraud"
+    description_vi: "Tuyển dụng việc làm online giả, yêu cầu nạp tiền để nhận nhiệm vụ hoặc rút lợi nhuận"
+    typical_channels:
+      - telegram
+      - zalo
+      - facebook
+      - fake_website
+
+  - id: 7
+    scam_type: "investment_crypto_forex"
+    scam_type_vi: "Đầu tư tiền ảo/ngoại hối giả"
+    parent_group: "financial_fraud"
+    description_vi: "Lừa đảo đầu tư crypto, forex, chứng khoán với lợi nhuận cao bất thường"
+    typical_channels:
+      - telegram
+      - zalo
+      - facebook
+      - fake_website
+      - fake_app
+
+  - id: 8
+    scam_type: "romance_scam"
+    scam_type_vi: "Lừa đảo tình cảm"
+    parent_group: "financial_fraud"
+    description_vi: "Giả mạo tình cảm qua mạng xã hội để lừa tiền, quà tặng, hoặc thông tin cá nhân"
+    typical_channels:
+      - facebook
+      - zalo
+      - dating_apps
+      - instagram
+
+  - id: 9
+    scam_type: "fake_receipt"
+    scam_type_vi: "Biên lai chuyển tiền giả"
+    parent_group: "financial_fraud"
+    description_vi: "Gửi biên lai chuyển khoản giả để lừa giao hàng hoặc dịch vụ trước khi tiền thực sự về tài khoản"
+    typical_channels:
+      - zalo
+      - sms
+      - messaging_apps
+
+  - id: 10
+    scam_type: "sim_lock_standardization"
+    scam_type_vi: "Lừa chuẩn hóa thuê bao/khóa SIM"
+    parent_group: "tech_exploitation"
+    description_vi: "Giả mạo nhà mạng thông báo khóa SIM, yêu cầu cung cấp thông tin hoặc cài đặt ứng dụng độc hại"
+    typical_channels:
+      - sms
+      - phone_call
+
+  - id: 11
+    scam_type: "social_account_takeover"
+    scam_type_vi: "Chiếm đoạt tài khoản mạng xã hội"
+    parent_group: "tech_exploitation"
+    description_vi: "Chiếm quyền Facebook, Zalo rồi nhắn tin mượn tiền bạn bè, người thân của nạn nhân"
+    typical_channels:
+      - facebook
+      - zalo
+      - messenger
+
+  - id: 12
+    scam_type: "recovery_scam"
+    scam_type_vi: "Lừa đảo lấy lại tiền"
+    parent_group: "financial_fraud"
+    description_vi: "Lừa nạn nhân đã bị lừa đảo trước đó bằng cách hứa giúp lấy lại tiền với phí dịch vụ"
+    typical_channels:
+      - facebook
+      - zalo
+      - phone_call
+
+  - id: 13
+    scam_type: "fake_app_remote_access"
+    scam_type_vi: "Ứng dụng giả/truy cập từ xa"
+    parent_group: "tech_exploitation"
+    description_vi: "Lừa cài đặt ứng dụng giả mạo hoặc phần mềm điều khiển từ xa để chiếm quyền điện thoại"
+    typical_channels:
+      - phone_call
+      - sms
+      - zalo
+      - fake_app_store
+
+  - id: 14
+    scam_type: "qr_phishing"
+    scam_type_vi: "Lừa đảo mã QR"
+    parent_group: "tech_exploitation"
+    description_vi: "Sử dụng mã QR giả dẫn đến website lừa đảo hoặc chuyển tiền không mong muốn"
+    typical_channels:
+      - physical_poster
+      - email
+      - social_media
+      - messaging_apps
+
+  - id: 15
+    scam_type: "malware_distribution"
+    scam_type_vi: "Phát tán mã độc"
+    parent_group: "tech_exploitation"
+    description_vi: "Phát tán virus, trojan, ransomware qua email, link tải, hoặc ứng dụng giả"
+    typical_channels:
+      - email
+      - fake_website
+      - fake_app_store
+      - sms
+
+  - id: 16
+    scam_type: "gambling_lottery_scam"
+    scam_type_vi: "Cờ bạc/xổ số trực tuyến lừa đảo"
+    parent_group: "financial_fraud"
+    description_vi: "Lôi kéo tham gia cờ bạc online, xổ số giả, đánh bạc trá hình dưới dạng đầu tư"
+    typical_channels:
+      - telegram
+      - zalo
+      - facebook
+      - fake_website
+
+  - id: 17
+    scam_type: "counterfeit_goods"
+    scam_type_vi: "Hàng giả/hàng nhái"
+    parent_group: "financial_fraud"
+    description_vi: "Bán hàng giả, hàng nhái, hàng kém chất lượng qua mạng với giá rẻ bất thường"
+    typical_channels:
+      - facebook
+      - shopee
+      - lazada
+      - tiktok_shop
+
+  - id: 18
+    scam_type: "other"
+    scam_type_vi: "Loại lừa đảo khác"
+    parent_group: "financial_fraud"
+    description_vi: "Các hình thức lừa đảo trực tuyến khác chưa được phân loại cụ thể"
+    typical_channels:
+      - various

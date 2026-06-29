@@ -1,0 +1,70 @@
+# ScamShield VN - Vietnamese Official Source Seed URLs
+# Curated URLs from official Vietnamese cybersecurity authorities and government portals.
+# The VietnameseOfficialCollector operates exclusively from these seed URLs (no broad crawling).
+# Each URL is a specific page with scam taxonomy, case reports, or consumer warnings.
+
+vietnamese_sources:
+  # Cục An toàn thông tin (AIS) - Ministry of Information and Communications
+  - url: "https://khonggianmang.vn/canh-bao"
+    source_name: "Cục An toàn thông tin - Cảnh báo an ninh mạng"
+    content_type: "warning"
+    language: "vi"
+    notes: "Trang cảnh báo lừa đảo trực tuyến của Cục An toàn thông tin"
+
+  - url: "https://khonggianmang.vn/phan-loai-lua-dao"
+    source_name: "Cục An toàn thông tin - Phân loại lừa đảo"
+    content_type: "taxonomy"
+    language: "vi"
+    notes: "Bảng phân loại các hình thức lừa đảo trực tuyến tại Việt Nam"
+
+  # Cảnh báo không gian mạng quốc gia
+  - url: "https://canhbao.khonggianmang.gov.vn"
+    source_name: "Cổng cảnh báo an toàn thông tin Việt Nam"
+    content_type: "warning"
+    language: "vi"
+    notes: "Cổng thông tin cảnh báo an toàn không gian mạng quốc gia"
+
+  - url: "https://canhbao.khonggianmang.gov.vn/danh-sach-canh-bao"
+    source_name: "Cổng cảnh báo - Danh sách cảnh báo"
+    content_type: "case"
+    language: "vi"
+    notes: "Danh sách các trường hợp lừa đảo đã được cảnh báo"
+
+  # Bộ Thông tin và Truyền thông (MIC)
+  - url: "https://mic.gov.vn/an-toan-thong-tin"
+    source_name: "Bộ TT&TT - An toàn thông tin"
+    content_type: "warning"
+    language: "vi"
+    notes: "Thông tin an toàn mạng từ Bộ Thông tin và Truyền thông"
+
+  - url: "https://mic.gov.vn/canh-bao-lua-dao"
+    source_name: "Bộ TT&TT - Cảnh báo lừa đảo"
+    content_type: "case"
+    language: "vi"
+    notes: "Các vụ lừa đảo trực tuyến được Bộ TT&TT cảnh báo"
+
+  # Bộ Công an
+  - url: "https://bocongan.gov.vn/canh-bao-toi-pham-mang"
+    source_name: "Bộ Công an - Cảnh báo tội phạm mạng"
+    content_type: "case"
+    language: "vi"
+    notes: "Cảnh báo từ Bộ Công an về các hình thức tội phạm công nghệ cao"
+
+  - url: "https://bocongan.gov.vn/an-ninh-mang"
+    source_name: "Bộ Công an - An ninh mạng"
+    content_type: "warning"
+    language: "vi"
+    notes: "Thông tin an ninh mạng và phòng chống lừa đảo từ Bộ Công an"
+
+  # Ngân hàng Nhà nước Việt Nam (SBV)
+  - url: "https://sbv.gov.vn/canh-bao-gia-mao-ngan-hang"
+    source_name: "Ngân hàng Nhà nước - Cảnh báo giả mạo"
+    content_type: "warning"
+    language: "vi"
+    notes: "Cảnh báo về giả mạo ngân hàng và lừa đảo tài chính từ NHNN"
+
+  - url: "https://sbv.gov.vn/bao-ve-nguoi-tieu-dung"
+    source_name: "Ngân hàng Nhà nước - Bảo vệ người tiêu dùng tài chính"
+    content_type: "warning"
+    language: "vi"
+    notes: "Hướng dẫn bảo vệ người tiêu dùng tài chính, nhận diện lừa đảo ngân hàng"

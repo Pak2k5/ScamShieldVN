@@ -1,0 +1,29 @@
+# Private data directories (never commit)
+data/private_raw/
+data/processed_private/
+
+# Environment variables
+.env
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Testing
+.pytest_cache/
+
+# Pipeline logs
+reports/*.log
+
+# Build and distribution
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+
+# Excel files in data directories only
+data/**/*.xlsx
