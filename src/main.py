@@ -207,10 +207,89 @@ def _run_process(args, registry, settings) -> None:
 
 def _run_export(args, registry, settings) -> None:
     """Execute the export phase."""
+    import json
+    import yaml
+    from pathlib import Path
+    from src.exporters.public_sanitizer import PublicSanitizer
+    from src.exporters.processed_private import ProcessedPrivateExporter
+    from src.exporters.public_kaggle import PublicKaggleExporter
+    from src.exporters.excel_metadata import ExcelMetadataExporter
+    from src.exporters.readme_generator import ReadmeGenerator
+    from src.exporters.dataset_card import DatasetCardGenerator
+    from src.exporters.license_notes import LicenseNotesGenerator
+    from src.exporters.manifest import ManifestGenerator
+
     target = getattr(args, "target", "all")
     logger.info("Running export phase (target={})...", target)
-    # Placeholder: actual export logic in later milestones
-    logger.info("Export phase complete (placeholder).")
+
+    # Load processed records
+    processed_path = Path(settings.output_dir) / "processed_private" / "scamshield_vn_processed.jsonl"
+    if not processed_path.exists():
+        logger.error("No processed data found. Run 'process' first.")
+        return
+
+    records = []
+    with open(processed_path, "r", encoding="utf-8") as f:
+        for line in f:
+            if line.strip():
+                records.append(json.loads(line))
+
+    logger.info("Loaded {} processed records for export.", len(records))
+
+    # Load review queue
+    review_queue = []
+    rq_path = Path(settings.output_dir) / "processed_private" / "review_queue.csv"
+    if rq_path.exists():
+        import csv
+        with open(rq_path, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            review_queue = list(reader)
+
+    # Export processed private (if target is "all")
+    if target == "all":
+        priv_exporter = ProcessedPrivateExporter(output_dir=settings.output_dir)
+        priv_exporter.export(records)
+
+    # Public sanitization and export
+    sanitizer = PublicSanitizer()
+    public_records = sanitizer.sanitize(records)
+
+    pub_exporter = PublicKaggleExporter(output_dir=settings.output_dir)
+    pub_exporter.export(public_records)
+
+    # Excel metadata
+    excel_exporter = ExcelMetadataExporter(output_dir=settings.output_dir)
+    
+    # Source registry as Excel
+    source_dicts = [s.model_dump() for s in registry.sources]
+    excel_exporter.export_source_registry(source_dicts)
+
+    # Taxonomy as Excel
+    taxonomy_path = Path("config/taxonomy_seed.yaml")
+    if taxonomy_path.exists():
+        with open(taxonomy_path, "r", encoding="utf-8") as f:
+            taxonomy_data = yaml.safe_load(f)
+        excel_exporter.export_taxonomy(taxonomy_data.get("taxonomy", []))
+
+    # Sample records Excel
+    excel_exporter.export_sample_records(public_records)
+
+    # Review queue summary Excel
+    excel_exporter.export_review_queue_summary(review_queue)
+
+    # Documentation
+    stats = {
+        "total_records": len(public_records),
+        "training_ready_count": sum(1 for r in public_records if r.get("training_ready")),
+        "sources_used": list({s.source_id for s in registry.sources if s.enabled}),
+    }
+
+    ReadmeGenerator().generate(output_dir=settings.output_dir)
+    DatasetCardGenerator().generate(output_dir=settings.output_dir, stats=stats)
+    LicenseNotesGenerator().generate(registry=registry, output_dir=settings.output_dir)
+    ManifestGenerator().generate(output_dir=settings.output_dir, dataset_version=settings.dataset_version, stats=stats)
+
+    logger.info("Export phase complete. {} public records exported.", len(public_records))
 
 
 def _run_validate(args, registry, settings) -> None:
