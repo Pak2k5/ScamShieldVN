@@ -105,14 +105,58 @@ def main() -> None:
 
 
 def _run_collect(args, registry, settings, env) -> None:
-    """Execute the collect phase."""
+    """Execute the collect phase using actual collectors."""
+    from src.collectors import COLLECTOR_REGISTRY
+    from src.exporters.private_raw import PrivateRawExporter
+    from src.utils.http_client import HttpClient
+
     source_filter = getattr(args, "source", None)
-    if source_filter:
-        logger.info("Running collect phase for source: {}", source_filter)
-    else:
-        logger.info("Running collect phase for all enabled sources...")
-    # Placeholder: actual collection logic in later milestones
-    logger.info("Collect phase complete (placeholder).")
+    
+    # Initialize shared infrastructure
+    http_client = HttpClient(
+        timeout=settings.timeout,
+        max_retries=settings.max_retries,
+        backoff_base=settings.backoff_base,
+        backoff_max=settings.backoff_max,
+        rate_limit_rps=settings.rate_limit_rps,
+    )
+    exporter = PrivateRawExporter(output_dir=settings.output_dir)
+    exporter.write_warning_file()
+
+    try:
+        # Determine which sources to collect from
+        sources_to_collect = []
+        for source in registry.sources:
+            if not source.enabled:
+                continue
+            if source_filter and source.source_id != source_filter:
+                continue
+            if source.source_id in COLLECTOR_REGISTRY:
+                sources_to_collect.append(source)
+
+        if not sources_to_collect:
+            logger.warning("No matching sources found for collection.")
+            return
+
+        logger.info("Collecting from {} source(s)...", len(sources_to_collect))
+
+        total_records = 0
+        for source in sources_to_collect:
+            collector_cls = COLLECTOR_REGISTRY[source.source_id]
+            collector = collector_cls(
+                source=source,
+                config=settings,
+                http_client=http_client,
+            )
+            records = collector.run()
+            if records:
+                exporter.export(records, source.source_id)
+                total_records += len(records)
+
+        logger.info("Collect phase complete. Total records: {}", total_records)
+
+    finally:
+        http_client.close()
 
 
 def _run_process(args, registry, settings) -> None:
