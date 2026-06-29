@@ -1,0 +1,49 @@
+# ScamShield VN - PII Detection Patterns
+# Regex patterns for detecting Personally Identifiable Information in Vietnamese text.
+# Used by the PII Masker (src/processors/pii_masker.py).
+
+patterns:
+  phone:
+    description: "Vietnamese phone numbers (10 digits starting with 0 or +84)"
+    regex: '(?:\+84|0)(?:3[2-9]|5[2689]|7[06-9]|8[1-9]|9[0-9])\d{7}'
+    token: "[PHONE_REDACTED]"
+    
+  bank_account:
+    description: "Vietnamese bank account numbers (6-19 digits in banking context)"
+    regex: '(?:(?:s[ốo]\s*(?:t[àa]i\s*kho[aả]n|TK)|STK|tài khoản)\s*[:\-]?\s*)(\d{6,19})'
+    token: "[BANK_ACCOUNT_REDACTED]"
+    
+  national_id_cccd:
+    description: "Vietnamese Citizen ID (CCCD) - 12 digits"
+    regex: '(?:CCCD|căn cước|c[aă]n\s*c[uư][ơớ]c)\s*[:\-]?\s*(\d{12})'
+    token: "[ID_REDACTED]"
+    
+  national_id_cmnd:
+    description: "Vietnamese Old ID (CMND) - 9 digits"
+    regex: '(?:CMND|ch[uứ]ng\s*minh)\s*[:\-]?\s*(\d{9})'
+    token: "[ID_REDACTED]"
+    
+  email:
+    description: "Email addresses"
+    regex: '[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}'
+    token: "[EMAIL_REDACTED]"
+    
+  otp:
+    description: "OTP codes (4-8 digits in OTP context)"
+    regex: '(?:OTP|m[aã]\s*(?:x[aá]c\s*th[uự]c|bảo mật|xác nhận))\s*[:\-]?\s*(\d{4,8})'
+    token: "[OTP_REDACTED]"
+    
+  password:
+    description: "Passwords in context"
+    regex: '(?:m[aậ]t\s*kh[aẩ]u|password|pass)\s*[:\-]?\s*(\S{4,30})'
+    token: "[PASSWORD_REDACTED]"
+    
+  card_number:
+    description: "Payment card numbers (13-19 digits, Luhn-checkable)"
+    regex: '\b(\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{1,7})\b'
+    token: "[CARD_REDACTED]"
+    
+  address:
+    description: "Vietnamese addresses (province/city + district/ward patterns)"
+    regex: '(?:(?:s[ốo]\s*\d+|đường|phố|ngõ|hẻm|thôn|xóm)\s+[\w\s]+,?\s*(?:phường|xã|thị trấn|quận|huyện|thành phố|tỉnh)\s+[\w\s]+)'
+    token: "[ADDRESS_REDACTED]"

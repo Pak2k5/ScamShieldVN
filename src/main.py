@@ -160,10 +160,49 @@ def _run_collect(args, registry, settings, env) -> None:
 
 
 def _run_process(args, registry, settings) -> None:
-    """Execute the process phase."""
+    """Execute the process phase using the processing pipeline."""
+    from src.processors.pipeline import ProcessingPipeline
+    import csv
+    import json
+    from pathlib import Path
+
     logger.info("Running process phase...")
-    # Placeholder: actual processing logic in later milestones
-    logger.info("Process phase complete (placeholder).")
+
+    pipeline = ProcessingPipeline(config=settings, registry=registry)
+    result = pipeline.process()
+
+    records = result["records"]
+    review_queue = result["review_queue"]
+    stats = result["stats"]
+
+    # Write processed output
+    output_dir = Path(settings.output_dir) / "processed_private"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Write JSONL
+    jsonl_path = output_dir / "scamshield_vn_processed.jsonl"
+    with open(jsonl_path, "w", encoding="utf-8") as f:
+        for record in records:
+            f.write(json.dumps(record, default=str, ensure_ascii=False) + "\n")
+    logger.info("Written {} records to {}", len(records), jsonl_path)
+
+    # Write review queue CSV
+    if review_queue:
+        rq_path = output_dir / "review_queue.csv"
+        fieldnames = ["record_id", "review_reason", "source_ids", "label", "evidence_level",
+                      "conflict_status", "pii_detected", "requires_action",
+                      "reviewer_assigned", "reviewed_by", "reviewed_at", "review_notes"]
+        with open(rq_path, "w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for entry in review_queue:
+                row = {k: entry.get(k, "") for k in fieldnames}
+                row["review_reason"] = "|".join(row["review_reason"]) if isinstance(row["review_reason"], list) else row["review_reason"]
+                row["source_ids"] = "|".join(row["source_ids"]) if isinstance(row["source_ids"], list) else row["source_ids"]
+                writer.writerow(row)
+        logger.info("Written {} review queue entries to {}", len(review_queue), rq_path)
+
+    logger.info("Process phase complete. Stats: {}", stats)
 
 
 def _run_export(args, registry, settings) -> None:
