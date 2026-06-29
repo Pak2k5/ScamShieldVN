@@ -293,10 +293,33 @@ def _run_export(args, registry, settings) -> None:
 
 
 def _run_validate(args, registry, settings) -> None:
-    """Execute the validate phase."""
+    """Execute the validate phase - quality report + Kaggle publication gate."""
+    from src.validators.kaggle_gate import KaggleGate
+    from src.validators.quality_report import QualityReportGenerator
+
     logger.info("Running validate phase...")
-    # Placeholder: actual validation logic in later milestones
-    logger.info("Validate phase complete (placeholder).")
+
+    # Generate quality report
+    quality_gen = QualityReportGenerator()
+    quality_gen.generate(output_dir=settings.output_dir)
+
+    # Run Kaggle publication gate
+    gate = KaggleGate(output_dir=settings.output_dir)
+    results = gate.run_checks()
+    report = gate.generate_report(results)
+
+    # Print report to stdout
+    print("\n" + report + "\n")
+
+    # Check if all passed
+    all_passed = all(r.get("passed", False) for r in results.values())
+    if not all_passed:
+        failed = [k for k, v in results.items() if not v.get("passed")]
+        logger.error("Kaggle gate FAILED. Failed checks: {}", failed)
+        import sys
+        sys.exit(1)
+    else:
+        logger.info("Kaggle gate PASSED - dataset ready for publication.")
 
 
 def _run_full_pipeline(args, registry, settings, env) -> None:
