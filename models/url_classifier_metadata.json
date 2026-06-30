@@ -1,0 +1,24 @@
+{
+  "model_type": "XGBClassifier",
+  "features": [
+    "url_length",
+    "path_length",
+    "query_length",
+    "has_ip_address",
+    "has_punycode",
+    "has_url_shortener"
+  ],
+  "n_train": 13318,
+  "n_test": 3330,
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "scale_pos_weight": 0.06,
+  "class_distribution": {
+    "malicious_train": 12518,
+    "benign_train": 800,
+    "malicious_test": 3130,
+    "benign_test": 200
+  }
+}
