@@ -1,243 +1,306 @@
-# 🚀 Đề Xuất Hướng Phát Triển ScamShield VN
+# 🚀 Lộ Trình Phát Triển ScamShield VN
 
 ## Tầm nhìn
 
-Biến ScamShield VN từ một bộ dữ liệu nghiên cứu thành **hệ sinh thái phát hiện lừa đảo trực tuyến** phục vụ cộng đồng Việt Nam — bao gồm dataset, mô hình AI, API, và ứng dụng thực tế.
+Xây dựng **model AI phát hiện lừa đảo trực tuyến** chạy tốt trên local, đóng gói thành SDK/API để tích hợp vào các ứng dụng bảo mật — phục vụ cộng đồng Việt Nam.
 
 ---
 
-## Giai đoạn 1: Mở rộng Dataset (1–2 tháng)
+## Hiện trạng (v0.1 — Baseline)
 
-### 1.1 Tăng quy mô dữ liệu
+| Thành phần | Trạng thái | Vấn đề |
+|-----------|-----------|--------|
+| Pipeline thu thập dữ liệu | ✅ Hoạt động | Đủ dùng |
+| Dataset 16,673 records | ✅ Có | Thiếu phishing URLs, thiếu text VN |
+| Model XGBoost URL | ⚠️ Baseline | Chỉ dùng url_length, sai trên URL dài hợp lệ |
+| Predict script | ✅ Có | Accuracy chưa thực tế |
+| Export Kaggle | ✅ PASS 11/11 | OK |
 
-| Mục tiêu | Hiện tại | Target |
-|-----------|----------|--------|
-| Malware URLs | 0 (sẵn collector) | 50,000+ từ URLhaus |
-| Phishing URLs | 0 (sẵn collector) | 20,000+ từ PhishTank + OpenPhish |
-| Benign domains VN | 37 | 200+ (thêm ngân hàng, fintech, startup) |
-| Benign messages | 25 | 500+ (crowdsource từ cộng đồng) |
-| Vietnamese scam cases | 10 seeds | 500+ cases từ báo chí/cơ quan |
-| Tranco benign | 0 (sẵn collector) | 1,000 domains |
-
-### 1.2 Thêm nguồn dữ liệu mới
-
-- **Báo chí tự động**: Parser cho VnExpress, Tuổi Trẻ, Thanh Niên (chỉ lấy metadata + paraphrase)
-- **Ngân hàng warnings**: Trang cảnh báo lừa đảo của Vietcombank, BIDV, Techcombank
-- **Community reports**: Form cho người dùng gửi tin nhắn/URL đáng ngờ (có consent)
-- **Telegram scam channels**: Thu thập public channels lừa đảo (nếu pháp lý cho phép)
-
-### 1.3 Nâng cao chất lượng nhãn
-
-- Thuê 3–5 annotators tiếng Việt review evidence C/D/E records
-- Xây annotation tool đơn giản (Streamlit/Gradio) để review queue
-- Inter-annotator agreement (IAA) đạt ≥ 0.8 Cohen's Kappa
+**Vấn đề chính cần giải quyết:**
+1. Model chỉ biết 1 feature (url_length) → false positive cao
+2. Thiếu dữ liệu phishing URLs (giả mạo ngân hàng, TMĐT)
+3. Thiếu dữ liệu text tiếng Việt (tin nhắn scam vs benign)
+4. Chưa có inference engine nhẹ cho tích hợp app
 
 ---
 
-## Giai đoạn 2: Xây dựng mô hình AI (2–4 tháng)
+## Phase 1: Cải thiện Model (2–3 tuần)
 
-### 2.1 URL Phishing Classifier
+### 1.1 Mở rộng feature set cho URL classifier
 
-**Input**: URL features (length, TLD, has_ip, has_punycode, domain_hash...)  
-**Output**: phishing / malware / benign  
-**Approach**: 
-- Gradient Boosting (XGBoost/LightGBM) cho baseline
-- Deep learning (CNN trên character-level URL)
-- Đạt target: F1 ≥ 0.95 trên test set
-
-### 2.2 Vietnamese Scam Text Classifier
-
-**Input**: Tin nhắn SMS/Zalo/Messenger tiếng Việt  
-**Output**: scam / suspicious / benign  
-**Approach**:
-- Fine-tune PhoBERT (pre-trained Vietnamese BERT) trên benign_messages + scam cases
-- Kết hợp rule-based risk signals + neural
-- Target: F1 ≥ 0.90 cho scam detection
-
-### 2.3 Scam Type Classifier (Multi-label)
-
-**Input**: Text/URL + context  
-**Output**: 1–5 scam types từ taxonomy 18 loại  
-**Approach**: Multi-label classification với PhoBERT + sigmoid heads
-
-### 2.4 Risk Signal Extractor
-
-**Input**: Tin nhắn tiếng Việt  
-**Output**: List risk signals (otp_request, urgency_pressure, impersonation_claim...)  
-**Approach**: Named Entity Recognition (NER) style hoặc multi-label
-
----
-
-## Giai đoạn 3: API và Tích hợp (3–6 tháng)
-
-### 3.1 ScamShield API
-
-REST API cho phép kiểm tra URL/tin nhắn:
+Thay vì chỉ dùng `url_length`, thêm **20+ features**:
 
 ```
-POST /api/v1/check-url
-{
-  "url": "https://suspicious-site.xyz/login"
+URL Structure Features:
+├── url_length, path_length, query_length (đã có)
+├── domain_length                    ← mới
+├── subdomain_count                  ← mới
+├── path_depth (số "/" trong path)   ← mới
+├── special_char_count (@ % ~ !)    ← mới
+├── digit_ratio_in_domain           ← mới
+├── has_https (bool)                 ← mới
+├── has_port_number (bool)           ← mới
+├── has_ip_address (đã có)
+├── has_punycode (đã có)
+├── has_url_shortener (đã có)
+├── tld_is_suspicious (.xyz, .tk, .ml, .top)  ← mới
+├── domain_entropy (Shannon entropy) ← mới
+├── longest_word_in_path             ← mới
+├── brand_in_subdomain (vietcombank, bidv...)  ← mới
+├── domain_age_days (nếu có WHOIS)   ← mới
+└── alexa_rank_bucket (nếu có Tranco) ← mới
+```
+
+### 1.2 Thu thập thêm dữ liệu
+
+| Nguồn | Mục tiêu | Hành động |
+|--------|----------|-----------|
+| PhishTank | +50K phishing URLs | Đăng ký API key miễn phí |
+| Benign URLs thật | +5K | Crawl top 5000 Tranco + Vietnamese sites |
+| Phishing VN giả mạo | +500 | Tạo synthetic URLs pattern ngân hàng VN |
+| Text scam VN | +500 | Crowdsource từ cộng đồng |
+| Text benign VN | +500 | Lấy từ SMS ngân hàng, giao hàng thật |
+
+### 1.3 Retrain model với features mới
+
+```bash
+# Sau khi thêm data + features
+python notebooks/train_url_classifier.py
+```
+
+**Target metrics:**
+- Precision ≥ 95% (ít false positive)
+- Recall ≥ 90% (bắt được đa số malicious)
+- F1 ≥ 92%
+- False positive rate trên benign VN domains < 2%
+
+---
+
+## Phase 2: Multi-Model Architecture (1–2 tháng)
+
+### 2.1 Tách thành 3 models chuyên biệt
+
+```
+ScamShield VN Models
+├── 📦 url_classifier       — XGBoost, phân loại URL malicious/benign
+├── 📦 text_classifier      — PhoBERT, phân loại tin nhắn scam/benign  
+└── 📦 risk_scorer          — Rule-based + ML, tính risk score 0-100
+```
+
+### 2.2 URL Classifier v2 (XGBoost + LightGBM ensemble)
+
+- Dùng 20+ features
+- Ensemble 2 models (XGBoost + LightGBM) → voting
+- Inference time < 5ms per URL
+
+### 2.3 Vietnamese Text Classifier (PhoBERT fine-tuned)
+
+```python
+# Fine-tune trên data benign_messages + scam_cases
+from transformers import AutoModelForSequenceClassification
+model = AutoModelForSequenceClassification.from_pretrained(
+    "vinai/phobert-base", num_labels=3  # scam, suspicious, benign
+)
+```
+
+- Input: tin nhắn SMS/Zalo/Messenger tiếng Việt
+- Output: scam / suspicious / benign + confidence
+- Target F1 ≥ 90%
+
+### 2.4 Risk Scorer (tổng hợp)
+
+```python
+def compute_risk_score(url=None, text=None) -> int:
+    """Trả về risk score 0-100."""
+    score = 0
+    if url:
+        score += url_classifier.predict_proba(url) * 40  # max 40 điểm từ URL
+    if text:
+        score += text_classifier.predict_proba(text) * 40  # max 40 điểm từ text
+    score += rule_based_signals(url, text) * 20  # max 20 điểm từ rules
+    return min(100, int(score))
+```
+
+---
+
+## Phase 3: Tối ưu Local & Đóng gói (1 tháng)
+
+### 3.1 Tối ưu inference speed
+
+| Mục tiêu | Kỹ thuật |
+|-----------|----------|
+| URL classifier < 1ms | ONNX Runtime export |
+| Text classifier < 50ms | ONNX + quantization INT8 |
+| Tổng latency < 100ms | Batch processing, caching |
+| RAM < 200MB | Model pruning, shared embeddings |
+
+```python
+# Export model sang ONNX cho deployment nhẹ
+import onnxmltools
+onnx_model = onnxmltools.convert_xgboost(xgb_model)
+onnxmltools.save_model(onnx_model, "models/url_classifier.onnx")
+```
+
+### 3.2 Đóng gói thành Python package
+
+```
+pip install scamshield-vn
+```
+
+```python
+from scamshield_vn import ScamShield
+
+shield = ScamShield()
+
+# Check URL
+result = shield.check_url("https://suspicious-link.xyz")
+print(result.risk_level)  # "high" / "medium" / "low"
+print(result.confidence)  # 0.94
+
+# Check text message
+result = shield.check_text("Tài khoản bị khóa, bấm link để mở khóa...")
+print(result.is_scam)     # True
+print(result.scam_type)   # "impersonation_bank"
+```
+
+### 3.3 Package structure
+
+```
+scamshield-vn/
+├── scamshield_vn/
+│   ├── __init__.py
+│   ├── shield.py           # Main API class
+│   ├── url_checker.py      # URL analysis
+│   ├── text_checker.py     # Text analysis  
+│   ├── risk_scorer.py      # Combined scorer
+│   ├── models/
+│   │   ├── url_classifier.onnx
+│   │   ├── text_classifier.onnx
+│   │   └── config.json
+│   └── utils/
+│       ├── features.py
+│       └── vietnamese.py
+├── pyproject.toml
+└── README.md
+```
+
+---
+
+## Phase 4: Tích hợp vào App Bảo mật (2–3 tháng)
+
+### 4.1 REST API (cho backend integration)
+
+```python
+# FastAPI server
+from fastapi import FastAPI
+from scamshield_vn import ScamShield
+
+app = FastAPI()
+shield = ScamShield()
+
+@app.post("/api/v1/check")
+async def check(url: str = None, text: str = None):
+    return shield.analyze(url=url, text=text)
+```
+
+Deploy options:
+- Docker container (self-hosted)
+- AWS Lambda / Google Cloud Run (serverless)
+- Edge deployment (Cloudflare Workers)
+
+### 4.2 Mobile SDK (Android/iOS)
+
+```kotlin
+// Android - Kotlin
+val shield = ScamShieldSDK.init(context)
+val result = shield.checkUrl("https://...")
+if (result.riskLevel == RiskLevel.HIGH) {
+    showWarningDialog("Cảnh báo: Link này có dấu hiệu lừa đảo!")
 }
-
-Response:
-{
-  "risk_level": "high",
-  "label": "phishing_url",
-  "confidence": 0.94,
-  "risk_signals": ["spoofed_brand_domain", "impersonation_bank"],
-  "recommendation": "Không truy cập link này"
-}
 ```
 
+- ONNX Runtime Mobile cho inference trên device
+- Offline mode (không cần internet)
+- Model update qua OTA (over-the-air)
+
+### 4.3 Browser Extension
+
+```javascript
+// Content script - check mọi link trên page
+document.querySelectorAll('a').forEach(link => {
+    const result = await scamshield.checkUrl(link.href);
+    if (result.riskLevel === 'high') {
+        link.classList.add('scamshield-warning');
+        link.title = '⚠️ ScamShield: Link đáng ngờ';
+    }
+});
 ```
-POST /api/v1/check-message
-{
-  "text": "Tài khoản bạn bị khóa. Bấm link để xác minh...",
-  "language": "vi"
-}
 
-Response:
-{
-  "risk_level": "high",
-  "label": "scam_case",
-  "scam_type": "impersonation_bank",
-  "risk_signals": ["urgency_pressure", "account_lock_claim", "unknown_url"],
-  "confidence": 0.91
-}
-```
+### 4.4 Tích hợp với app banking/fintech
 
-### 3.2 Browser Extension
-
-- Chrome/Firefox extension cảnh báo khi người dùng truy cập URL đáng ngờ
-- Hiển thị risk level trên từng link
-- Cho phép report URL mới
-
-### 3.3 Chatbot cảnh báo
-
-- Zalo Official Account hoặc Telegram Bot
-- Người dùng forward tin nhắn đáng ngờ → bot phản hồi risk assessment
-- Tích hợp với API ở trên
-
-### 3.4 Mobile SDK
-
-- Android/iOS SDK cho ứng dụng banking, e-commerce
-- Real-time URL scanning trước khi người dùng click
-- SMS/notification filtering
+| Partner tiềm năng | Loại tích hợp |
+|-------------------|---------------|
+| App ngân hàng | Scan URL trước khi mở WebView |
+| App ví điện tử | Check deeplink/QR code |
+| App nhắn tin | Filter tin nhắn scam |
+| Antivirus VN | Plugin phát hiện phishing |
+| Trình duyệt Cốc Cốc | Built-in URL checker |
 
 ---
 
-## Giai đoạn 4: Cộng đồng và Hợp tác (6–12 tháng)
+## Phase 5: Vận hành & Cải tiến liên tục (ongoing)
 
-### 4.1 Kaggle Competition
-
-- Tổ chức competition "Vietnamese Scam Detection" trên Kaggle
-- Prize pool từ sponsor (ngân hàng, fintech)
-- Thu hút researcher quốc tế và Việt Nam
-
-### 4.2 Đối tác chiến lược
-
-| Đối tác | Giá trị mang lại |
-|---------|-----------------|
-| **Ngân hàng (VCB, BIDV, TCB)** | Dữ liệu scam case thực, sponsor, API integration |
-| **Nhà mạng (Viettel, VNPT)** | SMS spam data, user reach |
-| **Bộ TT&TT / Cục ATTT** | Legitimacy, taxonomy chính thức, data sharing |
-| **VNPay / MoMo / ZaloPay** | Payment fraud patterns, API distribution |
-| **Shopee / Lazada** | E-commerce scam patterns |
-| **Cảnh sát mạng A05** | Case studies, verification |
-
-### 4.3 Open Source Community
-
-- Publish models lên HuggingFace: `scamshield-vn/phobert-scam-detector`
-- Tạo pip package: `pip install scamshield-vn`
-- Đóng góp vào Vietnamese NLP ecosystem
-
-### 4.4 Research Papers
-
-- Paper 1: "ScamShield VN: A Multi-Source Dataset for Vietnamese Online Scam Detection"
-- Paper 2: "PhoBERT-Scam: Fine-tuning Vietnamese BERT for Scam Text Classification"
-- Submit tại: EMNLP, ACL, hoặc conferences Cybersecurity (ACSAC, CCS)
-
----
-
-## Giai đoạn 5: Sản phẩm hóa (12+ tháng)
-
-### 5.1 ScamShield VN Platform
-
-Web platform hoàn chỉnh:
-- Dashboard real-time hiển thị scam trends Việt Nam
-- Search engine cho URL/domain lookup
-- Community reporting system
-- Automated alert system cho ngân hàng/doanh nghiệp
-
-### 5.2 Mô hình kinh doanh bền vững
-
-| Tier | Đối tượng | Pricing |
-|------|-----------|---------|
-| **Free** | Cá nhân, sinh viên | API 100 requests/ngày |
-| **Pro** | Doanh nghiệp nhỏ | API 10K requests/ngày, $49/tháng |
-| **Enterprise** | Ngân hàng, fintech | Unlimited API, custom models, SLA |
-| **Research** | Đại học, viện NC | Free dataset + API |
-
-### 5.3 Social Impact
-
-- Giảm thiểu thiệt hại lừa đảo trực tuyến tại Việt Nam
-- Nâng cao nhận thức cộng đồng
-- Hỗ trợ cơ quan chức năng phát hiện sớm chiến dịch scam mới
-
----
-
-## Roadmap tổng hợp
+### 5.1 Continuous Learning Pipeline
 
 ```
-Q3 2024: Dataset v1.0 (50K+ records) + Kaggle publish
-Q4 2024: PhoBERT Scam Classifier + API prototype
-Q1 2025: Browser Extension + Chatbot beta
-Q2 2025: Partnership ngân hàng/nhà mạng
-Q3 2025: Kaggle Competition + Research paper
-Q4 2025: Platform launch + Enterprise tier
+User reports → Verify → Add to training data → Retrain weekly → Deploy
+```
+
+### 5.2 Monitoring & Feedback loop
+
+- Track false positive/negative rate từ user feedback
+- A/B test model versions
+- Auto-retrain khi accuracy drop dưới threshold
+
+### 5.3 Threat Intelligence Feed
+
+- Cập nhật URLhaus/PhishTank hàng ngày (đã có collector)
+- Realtime blacklist sync
+- Community-sourced reports
+
+---
+
+## Tóm tắt Roadmap
+
+```
+Hiện tại ──────────────────────────────────────────────── Tương lai
+
+[v0.1 Baseline]  →  [v0.5 Multi-feature]  →  [v1.0 Production]  →  [SDK/API]
+  │                    │                        │                      │
+  ├─ url_length only   ├─ 20+ features          ├─ ONNX optimized     ├─ pip package
+  ├─ 16K records       ├─ 70K+ records          ├─ < 100ms latency    ├─ REST API
+  ├─ XGBoost only      ├─ XGBoost + PhoBERT     ├─ < 200MB RAM        ├─ Mobile SDK
+  └─ predict.py        └─ 3 models              └─ Docker ready       └─ Browser ext
+  
+  2 tuần                1-2 tháng                1 tháng                2-3 tháng
 ```
 
 ---
 
-## Tech Stack đề xuất cho giai đoạn sau
+## Bước tiếp theo ngay bây giờ
 
-| Layer | Công nghệ |
-|-------|-----------|
-| ML Training | PyTorch, HuggingFace Transformers, PhoBERT |
-| API Backend | FastAPI, Redis, PostgreSQL |
-| Browser Extension | TypeScript, Chrome Extension API |
-| Mobile SDK | Kotlin (Android), Swift (iOS) |
-| Infrastructure | Docker, Kubernetes, AWS/GCP |
-| Monitoring | Grafana, Prometheus |
-| CI/CD | GitHub Actions |
+1. **Đăng ký PhishTank API key** (miễn phí) → thêm 50K phishing URLs
+2. **Thêm features** vào `notebooks/train_url_classifier.py` (domain_length, subdomain_count, digit_ratio, tld_suspicious, brand_detection)
+3. **Retrain** → đánh giá lại accuracy trên test set đa dạng hơn
+4. **Tạo test set thủ công** gồm 50 URL VN hợp lệ + 50 URL lừa đảo VN → benchmark
 
 ---
 
-## Ưu thế cạnh tranh
+## Ưu thế khi triển khai
 
-1. **Đặc thù Việt Nam**: Không có tool nào tập trung Vietnamese scam patterns + tiếng Việt NLP
-2. **Open-source first**: Dataset + model public → cộng đồng đóng góp
-3. **Legal compliance**: Xây từ đầu với privacy/legal framework chặt chẽ
-4. **Multi-source**: Kết hợp threat feeds quốc tế + nguồn Việt Nam chính thống
-5. **Production-ready pipeline**: Có thể scale lên real-time processing
-
----
-
-## Rủi ro và giảm thiểu
-
-| Rủi ro | Giảm thiểu |
-|--------|------------|
-| Thiếu dữ liệu tiếng Việt labeled | Crowdsource + partner ngân hàng |
-| False positive cao (block nhầm) | Human-in-the-loop + confidence threshold |
-| Scammer thay đổi chiến thuật | Continuous learning + community reports |
-| Pháp lý khi public dataset | Đã có legal framework từ M1 (PII, redistribution, evidence) |
-| Funding | Start miễn phí → Enterprise revenue → Grant/sponsor |
-
----
-
-## Kết luận
-
-ScamShield VN có tiềm năng trở thành **nền tảng phát hiện lừa đảo trực tuyến đầu tiên tập trung cho thị trường Việt Nam**. Với dataset chất lượng + mô hình AI + API mở, dự án có thể bảo vệ hàng triệu người dùng Việt Nam khỏi các chiến dịch lừa đảo ngày càng tinh vi.
-
-Bước tiếp theo ngay bây giờ: **Thu thập thêm dữ liệu → Train PhoBERT → Publish Kaggle.**
+| So với giải pháp hiện có | ScamShield VN |
+|--------------------------|---------------|
+| Google Safe Browsing | Miễn phí, chạy offline, tập trung VN |
+| VirusTotal | Không cần API, realtime trên device |
+| Kaspersky/Norton | Nhẹ hơn, tùy biến, open-source |
+| Không có giải pháp VN | **Đầu tiên** cho thị trường VN |
