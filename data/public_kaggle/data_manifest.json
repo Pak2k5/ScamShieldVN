@@ -1,9 +1,9 @@
 {
   "dataset_version": "0.1.0",
-  "build_date": "2026-06-29T18:05:53.975501",
+  "build_date": "2026-06-30T20:32:07.146322",
   "pipeline_version": "0.1.0",
-  "total_record_count": 25,
-  "training_ready_count": 25,
+  "total_record_count": 16673,
+  "training_ready_count": 16673,
   "files": [
     {
       "file_name": ".gitkeep",
@@ -13,8 +13,8 @@
     },
     {
       "file_name": "dataset_card.md",
-      "file_size_bytes": 2020,
-      "sha256_checksum": "02e9b15483ff9f5ac94e1b6b621ab00f6018a604d69f1e4ef0d1c5409ad804bf",
+      "file_size_bytes": 2026,
+      "sha256_checksum": "30e517b948f092da29edabcd0f54cc66b7b53acd712568db0777f2e8d82817ef",
       "row_count": 0
     },
     {
@@ -31,58 +31,58 @@
     },
     {
       "file_name": "review_queue_summary.xlsx",
-      "file_size_bytes": 4982,
-      "sha256_checksum": "79bea9b59b368bbc3ce4ff7d6f5f0490745d8c5c63187715160aafffcacbe650",
+      "file_size_bytes": 5184,
+      "sha256_checksum": "8bff9b22cc5b7e15e2d8e913dd3af30daa91d704bc57d969a5b45a5eae75a42f",
       "row_count": 0
     },
     {
       "file_name": "sample_records.xlsx",
-      "file_size_bytes": 9109,
-      "sha256_checksum": "6e9da536d2d8bf3d981b9422ce88043d0df0e0557145dcf1a5e98103edeafa79",
+      "file_size_bytes": 121576,
+      "sha256_checksum": "7ae7a9f6ad24125c148e4ed095c7c77dfe1455cf8afdad2272a8494670c0d499",
       "row_count": 0
     },
     {
       "file_name": "scam_taxonomy.xlsx",
-      "file_size_bytes": 7068,
-      "sha256_checksum": "1c1e59fc48a334559366b68c54124f3746cfe8eda744b3db6cbd69b842333e09",
+      "file_size_bytes": 7158,
+      "sha256_checksum": "a757147ee42629c547a790d3b811268ad11bb7565fbaa77ee3361a3b5669d0ee",
       "row_count": 0
     },
     {
       "file_name": "scamshield_vn_public.csv",
-      "file_size_bytes": 8346,
-      "sha256_checksum": "ff8eedf073b9612e8d1decc70ad5cf9ab271d4bf4a1390a9e1ec729fcfad7dbd",
-      "row_count": 25
+      "file_size_bytes": 5566013,
+      "sha256_checksum": "34bd52fdfb2eee52b4b14ffaf08cf2510304ac2ea90c5a4bdb9569f2e2be1d76",
+      "row_count": 16673
     },
     {
       "file_name": "scamshield_vn_public.jsonl",
-      "file_size_bytes": 16342,
-      "sha256_checksum": "782f12a7d7d405fcb1fd2ec804740b6df343dfdd7f670999a4e388fcc59e52de",
-      "row_count": 25
+      "file_size_bytes": 12399763,
+      "sha256_checksum": "5c24abf3b3b4d48b048be9e538350b47b7d81efd161a57e5c67d6d34cdafd2e3",
+      "row_count": 16673
     },
     {
       "file_name": "scamshield_vn_public.parquet",
-      "file_size_bytes": 13804,
-      "sha256_checksum": "82739e6068674ec7cee294d65b82e9ed79d35c9b630f4038abad5cfe1d43a072",
+      "file_size_bytes": 1339739,
+      "sha256_checksum": "c851f2a972ec2c37bae14a00555a25da3c8b8152ceb3d008cfaa413bae11595f",
       "row_count": 0
     },
     {
       "file_name": "source_registry.xlsx",
-      "file_size_bytes": 6213,
-      "sha256_checksum": "e4db5a14d45876ae3e32b0605bc245571c81af89cf049cdd129d58c5bb768fb6",
+      "file_size_bytes": 6426,
+      "sha256_checksum": "7cea585f4f1613fdddf0823bc4158e49ac7739253d7782a34cbc81a932ca80bd",
       "row_count": 0
     }
   ],
-  "source_snapshot_date": "2026-06-29",
+  "source_snapshot_date": "2026-06-30",
   "sources_used": [
     "virustotal",
-    "google_safe_browsing",
-    "tin_nhiem_mang",
     "openphish_feed",
-    "vietnamese_official",
-    "benign_domains_vn",
-    "phishtank_verified",
-    "tranco_top1000",
     "urlhaus_malware",
+    "tin_nhiem_mang",
+    "benign_domains_vn",
+    "tranco_top1000",
+    "google_safe_browsing",
+    "vietnamese_official",
+    "phishtank_verified",
     "benign_messages"
   ]
 }

@@ -4,29 +4,31 @@
 
 ## Summary
 
-- **Total public records**: 25
-- **Training-ready**: 25
+- **Total public records**: 16673
+- **Training-ready**: 16673
 - **Not training-ready**: 0
 
 ## Records by Label
 
 | Label | Count |
 |-------|-------|
+| phishing_url | 15648 |
+| benign_url | 1000 |
 | benign_message | 25 |
 
 ## Records by Evidence Level
 
 | Level | Count |
 |-------|-------|
-| A | 0 |
-| B | 25 |
+| A | 15648 |
+| B | 1025 |
 | C | 0 |
 | D | 0 |
 | E | 0 |
 
 ## Training Readiness
 
-- Training-ready: 25 (100.0%)
+- Training-ready: 16673 (100.0%)
 - Not ready: 0 (0.0%)
 
 ## Data Quality Warnings

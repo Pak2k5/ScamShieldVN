@@ -12,8 +12,8 @@ ScamShield VN is a multi-source dataset combining verified phishing/malware URLs
 Online scams targeting Vietnamese users are rapidly increasing. This dataset enables researchers to develop detection models specific to Vietnamese language and scam patterns.
 
 ## Composition
-- Total records: 25
-- Training-ready records: 25
+- Total records: 16673
+- Training-ready records: 16673
 - Record types: URL, Case, Domain, Message
 - Languages: Vietnamese, English (URLs)
 
