@@ -1,0 +1,33 @@
+{
+  "title": "ScamShield VN - Vietnamese Online Scam & Phishing Detection Dataset",
+  "id": "pak2k5/scamshield-vn-phishing-dataset",
+  "licenses": [
+    {
+      "name": "CC-BY-4.0"
+    }
+  ],
+  "keywords": [
+    "cybersecurity",
+    "phishing",
+    "vietnam",
+    "nlp",
+    "classification",
+    "fraud detection",
+    "malware",
+    "scam detection"
+  ],
+  "resources": [
+    {
+      "path": "scamshield_vn_public.csv",
+      "description": "Main dataset in CSV format (16,673 records)"
+    },
+    {
+      "path": "scamshield_vn_public.parquet",
+      "description": "Main dataset in Parquet format (fastest for notebooks)"
+    },
+    {
+      "path": "scamshield_vn_public.jsonl",
+      "description": "Main dataset in JSONL format (preserves nested fields)"
+    }
+  ]
+}
