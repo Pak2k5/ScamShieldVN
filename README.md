@@ -3,51 +3,91 @@
   <img src="https://img.shields.io/badge/License-CC--BY--4.0-green?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Platform-Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white" />
+  <img src="https://img.shields.io/badge/Version-0.2.0-orange?style=for-the-badge" />
 </p>
 
 # 🛡️ ScamShield VN
 
-### Vietnamese Online Scam & Phishing Detection Dataset Pipeline
+### Công cụ phát hiện link lừa đảo + Dataset pipeline cho nghiên cứu AI
 
-> Bộ công cụ Python CLI tự động thu thập, xử lý, gắn nhãn và xuất bộ dữ liệu phát hiện lừa đảo trực tuyến tại Việt Nam — phục vụ nghiên cứu AI/ML và bảo vệ cộng đồng.
+> Kiểm tra URL/link có phải lừa đảo không bằng 1 lệnh duy nhất. Đồng thời cung cấp pipeline Python CLI tự động thu thập, xử lý và xuất dataset phát hiện lừa đảo trực tuyến tại Việt Nam.
+
+### 🚀 Dùng thử ngay
+
+```bash
+# Kiểm tra 1 link
+python predict.py https://link-can-kiem-tra.com
+
+# Chế độ nhập liên tục
+python predict.py
+```
 
 ---
 
 ## 📋 Mục lục
 
+- [Demo nhanh](#-demo-nhanh)
 - [Tổng quan](#-tổng-quan)
+- [Cách hoạt động](#-cách-hoạt-động)
 - [Tính năng chính](#-tính-năng-chính)
-- [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
-- [Cấu trúc dự án](#-cấu-trúc-dự-án)
 - [Cài đặt](#-cài-đặt)
 - [Sử dụng](#-sử-dụng)
-- [Pipeline xử lý 10 bước](#-pipeline-xử-lý-10-bước)
+- [Data Pipeline](#-data-pipeline)
+- [Cấu trúc dự án](#-cấu-trúc-dự-án)
 - [Nguồn dữ liệu](#-nguồn-dữ-liệu)
-- [Schema dữ liệu](#-schema-dữ-liệu)
-- [Kaggle Publication Gate](#-kaggle-publication-gate)
 - [Bảo mật & Đạo đức](#-bảo-mật--đạo-đức)
+- [Lộ trình phát triển](#-lộ-trình-phát-triển)
 - [Đóng góp](#-đóng-góp)
 - [License](#-license)
 
 ---
 
+## 🎬 Demo nhanh
+
+```
+🔍 Nhập link: https://www.topzone.vn/tekzone/code-total-football-1592948
+
+╔══════════════════════════════════════════════════════════════╗
+║  Domain gốc:       topzone.vn
+║  Trạng thái domain: 🏛️  THUỘC DANH SÁCH UY TÍN
+║  Điểm đánh giá:    0/100
+║  Kết luận:         ✅ AN TOÀN
+╚══════════════════════════════════════════════════════════════╝
+
+🔍 Nhập link: https://vietcombank-secure.xyz/login/verify-otp
+
+╔══════════════════════════════════════════════════════════════╗
+║  Domain gốc:       vietcombank-secure.xyz
+║  Trạng thái domain: ❓ CHƯA XÁC MINH
+║  Điểm đánh giá:    100/100
+║  Kết luận:         🚨 NGUY HIỂM
+║  • Đuôi domain .xyz thường bị lạm dụng cho lừa đảo
+║  • Nghi giả mạo thương hiệu 'vietcombank'
+║  • Path chứa từ khóa đáng ngờ: login, verify, otp
+╚══════════════════════════════════════════════════════════════╝
+```
+
+---
+
 ## 🎯 Tổng quan
 
-**ScamShield VN** là một data pipeline hoàn chỉnh giải quyết bài toán: *"Làm sao tạo được bộ dữ liệu chất lượng để train AI phát hiện lừa đảo trực tuyến tại Việt Nam?"*
+**ScamShield VN** giải quyết 2 bài toán:
+
+1. **Cho người dùng**: Kiểm tra nhanh link/URL có phải lừa đảo không
+2. **Cho nhà nghiên cứu**: Pipeline tạo dataset chất lượng để train AI phát hiện lừa đảo
 
 ### Vấn đề
 - Lừa đảo trực tuyến tại Việt Nam tăng mạnh (24 hình thức theo Cục ATTT)
+- Thiếu công cụ kiểm tra link tập trung cho người Việt
 - Thiếu dataset tiếng Việt có nhãn chất lượng cho nghiên cứu
-- Dữ liệu phân tán, không có provenance rõ ràng
-- Rủi ro PII khi public dataset
 
 ### Giải pháp
-Pipeline tự động với 3 tầng dữ liệu an toàn:
 
 ```
-[Thu thập] → [Xử lý 10 bước] → [Xuất Kaggle-ready]
-     ↓              ↓                    ↓
- private_raw   processed_private    public_kaggle
+[Kiểm tra link]     python predict.py <URL>
+[Thu thập data]  →  [Xử lý 10 bước]  →  [Xuất Kaggle-ready]
+     ↓                    ↓                      ↓
+ private_raw        processed_private       public_kaggle
  (thô, PII)    (labeled, masked)   (an toàn, public)
 ```
 
@@ -57,13 +97,15 @@ Pipeline tự động với 3 tầng dữ liệu an toàn:
 
 | Tính năng | Mô tả |
 |-----------|--------|
-| 🔍 **Multi-source Collection** | Thu thập từ 10+ nguồn (URLhaus, PhishTank, OpenPhish, Tranco, nguồn VN) |
-| 🏷️ **Auto Labeling** | Gắn nhãn tự động: phishing_url, malware_url, benign_url, scam_case... |
+| 🔍 **Kiểm tra link lừa đảo** | `python predict.py <URL>` — kết quả tiếng Việt, điểm 0-100 |
+| 🏛️ **Domain Trust Whitelist** | 100+ domain VN uy tín (ngân hàng, TMĐT, gov) — URL dài vẫn an toàn nếu domain đúng |
+| 🎭 **Phát hiện giả mạo brand** | Nhận diện vietcombank-secure.xyz giả mạo Vietcombank |
+| 🔒 **TLD đáng ngờ** | Cảnh báo .xyz, .tk, .top, .buzz — domain hay bị lạm dụng |
+| 🔑 **Keyword đáng ngờ** | Phát hiện /login, /verify-otp, /update-account trong path |
+| 📊 **Multi-source Collection** | Thu thập từ 10+ nguồn (URLhaus, PhishTank, OpenPhish, Tranco) |
+| 🏷️ **Auto Labeling** | Gắn nhãn tự động: phishing_url, malware_url, benign_url, scam_case |
 | 📊 **Evidence Scoring** | Đánh giá mức tin cậy A/B/C/D/E dựa trên nguồn |
 | 🔒 **PII Masking** | Tự động ẩn SĐT, CCCD, email, STK ngân hàng, OTP |
-| 👤 **Named Entity Detection** | Phát hiện tên người Việt trong text |
-| ⚔️ **Conflict Detection** | Phát hiện xung đột benign vs malicious |
-| 📝 **Review Queue** | Đưa record không chắc chắn vào hàng chờ human review |
 | ✅ **11-Point Kaggle Gate** | Kiểm tra tự động trước khi publish |
 | 📦 **Multi-format Export** | CSV, JSONL, Parquet, Excel |
 | 🇻🇳 **Vietnamese Taxonomy** | 18 loại lừa đảo phổ biến tại Việt Nam |
@@ -224,49 +266,57 @@ python -m src.main run
 
 ## 🚀 Sử dụng
 
-### CLI Commands
+### Kiểm tra link lừa đảo (dùng ngay)
 
 ```bash
-# Xem help
-python -m src.main --help
+# Kiểm tra 1 link
+python predict.py https://link-can-kiem-tra.com
 
-# Thu thập dữ liệu (tất cả nguồn)
+# Chế độ nhập liên tục (gõ 'thoat' để dừng)
+python predict.py
+```
+
+### Thang điểm đánh giá
+
+| Điểm | Kết luận | Ý nghĩa |
+|------|----------|---------|
+| 0-20 | ✅ AN TOÀN | Domain thuộc whitelist uy tín |
+| 21-40 | ❓ CHƯA XÁC MINH | Domain lạ, chưa biết tốt/xấu |
+| 41-60 | ⚠️ CẦN CẨN THẬN | Có dấu hiệu đáng ngờ (TLD lạ, keyword nhạy cảm) |
+| 61-80 | 🔶 NGHI NGỜ CAO | Nhiều dấu hiệu lừa đảo (giả mạo brand) |
+| 81-100 | 🚨 NGUY HIỂM | Gần chắc chắn lừa đảo (giả mạo + TLD lạ + keywords) |
+
+### Logic đánh giá
+
+```
+Bước 1: Tách domain gốc (vd: topzone.vn)
+Bước 2: Domain có trong whitelist 100+ nguồn uy tín?
+   → CÓ → ✅ An toàn (bất kể URL dài thế nào)
+   → KHÔNG → Xét tiếp:
+       • TLD có đáng ngờ? (.xyz, .tk, .top...)
+       • Có giả mạo brand? (vietcombank-xxx.xyz)
+       • Path có keywords lừa đảo? (/login, /verify-otp)
+       • Có dùng IP thay domain?
+       • Có punycode?
+```
+
+### Data Pipeline (cho nghiên cứu)
+
+```bash
+# Thu thập dữ liệu
 python -m src.main collect
 
-# Thu thập từ 1 nguồn cụ thể
-python -m src.main collect --source urlhaus_malware
-
-# Xử lý dữ liệu (10-stage pipeline)
+# Xử lý 10 bước
 python -m src.main process
 
 # Xuất ra Kaggle format
 python -m src.main export --target kaggle
 
-# Kiểm tra chất lượng + Kaggle gate
+# Kiểm tra chất lượng (11 checks)
 python -m src.main validate
 
-# Chạy toàn bộ end-to-end
+# Chạy full pipeline
 python -m src.main run
-
-# Debug mode
-python -m src.main --verbose run
-```
-
-### Ví dụ thực tế
-
-```bash
-# Thu thập malware URLs từ URLhaus (miễn phí, CC0, ~10K URLs)
-python -m src.main collect --source urlhaus_malware
-
-# Thu thập top 1000 domains hợp lệ từ Tranco
-python -m src.main collect --source tranco_top1000
-
-# Xử lý toàn bộ dữ liệu đã thu thập
-python -m src.main process
-
-# Xuất và validate
-python -m src.main export --target kaggle
-python -m src.main validate
 ```
 
 ---
@@ -421,6 +471,20 @@ Trước khi publish, pipeline tự động chạy **11 kiểm tra**:
 | Phát triển tool phát hiện scam | Doxxing / quấy rối |
 | Phân tích xu hướng lừa đảo | Public số điện thoại / STK |
 | Giáo dục cộng đồng | Ra quyết định pháp lý tự động |
+
+---
+
+## 🗺️ Lộ trình phát triển
+
+| Phase | Mục tiêu | Trạng thái |
+|-------|----------|-----------|
+| v0.1 | Dataset pipeline + XGBoost baseline | ✅ Done |
+| v0.2 | Domain trust whitelist + rule-based checker | ✅ Done |
+| v0.5 | 20+ URL features + PhoBERT text classifier | 🔲 Next |
+| v1.0 | ONNX optimized, < 100ms, đóng gói pip package | 🔲 Planned |
+| v2.0 | REST API + Mobile SDK + Browser Extension | 🔲 Future |
+
+Chi tiết: xem [HUONG_PHAT_TRIEN.md](HUONG_PHAT_TRIEN.md)
 
 ---
 
