@@ -270,6 +270,56 @@ User reports → Verify → Add to training data → Retrain weekly → Deploy
 
 ---
 
+## Phase 6: Kiểm tra số điện thoại lừa đảo (tương lai)
+
+> **Trạng thái: Chưa triển khai** — cần thu thập database số điện thoại scam trước.
+
+### 6.1 Mô tả tính năng
+
+Cho phép người dùng kiểm tra số điện thoại có nằm trong danh sách lừa đảo không:
+
+```python
+result = shield.check_phone("0901234567")
+# → {"risk": "high", "reports": 12, "scam_type": "impersonation_bank"}
+```
+
+### 6.2 Nguồn dữ liệu cần thu thập
+
+| Nguồn | Mô tả | Khả thi |
+|--------|--------|---------|
+| Crowdsource community | Form cho người dùng report số lừa đảo | ✅ Tự xây |
+| Facebook groups cảnh báo | Scrape public posts (nếu ToS cho phép) | ⚠️ Cần review |
+| App chặn cuộc gọi (Truecaller) | API có phí | 💰 Tốn chi phí |
+| Cơ quan công an | Database chính thức | 🏛️ Cần hợp tác |
+| Ngân hàng | Số giả mạo hotline | 🏦 Cần đối tác |
+
+### 6.3 Kiến trúc dự kiến
+
+```
+phone_checker/
+├── blacklist_db.json       # Database số điện thoại scam (crowdsourced)
+├── whitelist_db.json       # Số chính thức (ngân hàng, nhà mạng, cơ quan)
+├── rule_engine.py          # Kiểm tra format, đầu số lạ, quốc tế giả
+└── phone_scorer.py         # Tính điểm nguy hiểm 0-100
+```
+
+### 6.4 Rule-based checks (có thể làm trước khi có database)
+
+- Đầu số VN hợp lệ: 03x, 05x, 07x, 08x, 09x
+- Phát hiện số quốc tế giả mạo (+84 nhưng gọi từ nước ngoài)
+- Số brandname giả (ngân hàng thật gửi SMS bằng tên, không bằng số)
+- Số hotline chính thức vs số giả mạo hotline
+
+### 6.5 Điều kiện triển khai
+
+- [ ] Thu thập ≥1,000 số điện thoại scam đã verify
+- [ ] Xây whitelist số chính thức (ngân hàng, nhà mạng, cơ quan)
+- [ ] Tạo form report cho cộng đồng
+- [ ] Xây pipeline verify reports (tránh report nhầm/vu khống)
+- [ ] Compliance: không public số cá nhân, chỉ public kết quả check
+
+---
+
 ## Tóm tắt Roadmap
 
 ```
